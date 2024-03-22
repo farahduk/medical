@@ -38,5 +38,6 @@ poetry add name-of-library
 
 ### API URLs
 
-Search: [http://localhost:5000/search/?term=](ttp://localhost:5000/search/?term=)
-Fetch: [http://localhost:5000/fetch/](ttp://localhost:5000/fetch/)
+Search: http://localhost:5000/search/?term=
+
+Fetch: http://localhost:5000/fetch/
