@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{% block head %}
+	<link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+
+	<title>{% block title %}{% endblock %} Pub Med Searching</title>
+
+	{% endblock %}
+</head>
+
+<body>
+	<div id="content">
+		{% block content %}
+		<div class="form">
+			<p class="form-title">Search in Pub Med</p>
+			<form class="input-container">
+				<input name="term" id="search-term" type="text" placeholder="Search" />
+				<button type="button" id="search-button" class="submit">Submit</button>
+				<span> </span>
+				<div class="input-container" id="fetch-link"></div>
+				<span> </span>
+				<input name="term" id="search-task" type="text" placeholder="Fetch a Task ID" />
+				<button type="button" id="task-button" class="submit">Submit</button>
+				<span> </span>
+				<div class="input-container" id="fetchTask-link"></div>
+			</form>
+
+		</div>
+		{% endblock %}
+	</div>
+
+	<div id="footer">
+		{% block footer %}
+		<span>&copy; Fernando Gutierrez</span>
+		<a href="https://www.linkedin.com/in/fernando-gutierrez-60306222b/">Linkedin</a>
+		{% endblock %}
+	</div>
+
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script type="text/javascript">
+		const searchButton = document.getElementById("search-button");
+		const taskButton = document.getElementById("task-button");
+		const searchTerm = document.getElementById("search-term");
+		const searchTask = document.getElementById("search-task");
+		const fetchLink = document.getElementById("fetch-link");
+		const fetchTaskLink = document.getElementById("fetchTask-link");
+
+		// Clean the fetch link
+		const cleanFetchLink = () => {
+			fetchLink.innerHTML = "";
+		}
+		const cleanFetchTaskLink = () => {
+			fetchTaskLink.innerHTML = "";
+		}
+
+		const createLink = (href) => {
+			console.log(href, href !== "");
+			if (href !== "") {
+				const link = document.createElement("a");
+				link.setAttribute("target", "_blank");
+				link.innerHTML = href;
+				link.setAttribute("href", href);
+				return link
+			} else {
+				const errorMessage = document.createElement("span");
+				errorMessage.innerHTML = "Link can't be created";
+				errorMessage.classList.add("error");
+				return errorMessage;
+			}setAttribute
+		}
+
+		const search = (term) => {
+
+			// Clean fetch link on each search;
+			cleanFetchLink();
+			axios.get('/search', {
+				params: {
+					term: term
+				}
+			}).then(response => {
+				if (response.status === 200) {
+					const link = createLink(`/fetch/${response.data.task_id}`);
+					fetchLink.appendChild(link);
+				}
+			}).catch(error => {
+				const errorMessage = createLink("");
+				fetchLink.appendChild(errorMessage);
+			})
+		}
+		const fetch = (task_id) =>{
+			cleanFetchTaskLink()
+			const link = createLink(`/fetch/${task_id}`);
+					fetchTaskLink.appendChild(link);
+
+		}
+
+		searchButton.addEventListener("click", e => {
+			search(searchTerm.value);
+		});
+
+		taskButton.addEventListener("click", e => {
+			fetch(searchTask.value);
+		});
+
+
+	</script>
+</body>
+
+</html>

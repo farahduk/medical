@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "Yale Medical"
+version = "0.1.0"
+description = "API to query PUB MED"
+authors = ["Fernando Gutierrez <farahduk@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+quart = "^0.19.4"
+redis = "^5.0.3"
+celery = "^5.3.6"
+requests = "^2.31.0"
+rabbitmq = "^0.2.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

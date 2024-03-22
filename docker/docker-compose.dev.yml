@@ -1,0 +1,55 @@
+version: "3.8"
+
+x-python-overrides:
+
+  &python-overrides
+  image: fernando/medical:dev
+  env_file:
+    - ../.host.env
+  environment:
+    &python-environment
+    CONFIG: medical.config.Local
+    QUART_APP: medical.app
+    CELERY_BROKER_URL: amqp://medical:pass@rabbitmq:5672/celery
+    CELERY_RESULT_BACKEND: redis://redis:6379/0
+    PUB_MED_URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&format=json&retstart=0&retmax=20
+  working_dir: /app/src
+  volumes:
+    &python-volumes
+    - ../:/app
+  networks:
+    - default
+
+services:
+
+  medical:
+    <<: *python-overrides
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    command: [ "quart", "run", "--host", "0.0.0.0" ]
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=medical
+      - RABBITMQ_DEFAULT_PASS=pass
+      - RABBITMQ_DEFAULT_VHOST=celery
+    ports:
+      - 5672:5672
+    networks:
+      - default
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - default
+
+  worker:
+    <<: *python-overrides
+    environment:
+      <<: *python-environment
+      DB_APPLICATION_NAME: "celery-worker"
+    depends_on:
+      - rabbitmq
+    command: [ "celery", "-A", "medical", "worker", "-E" ]
